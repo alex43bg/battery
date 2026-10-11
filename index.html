@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101614">
+  <title>Енергія — монітор батареї</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #101614;
+      color: #f1f5f2;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --muted: #a2ada6;
+      --line: #303b35;
+      --green: #9be5ac;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 36px 18px;
+      background: radial-gradient(ellipse at 50% -25%, #263d30 0, #101614 58%);
+    }
+    button, input { font: inherit; }
+    .app { display: grid; width: min(100%, 620px); margin: 0 auto; gap: 16px; }
+    .card {
+      margin-top: 0;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgb(25 33 29 / 94%);
+      box-shadow: 0 18px 50px rgb(0 0 0 / 16%);
+    }
+    .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    h2 { margin: 0; font-size: 1rem; letter-spacing: -.01em; }
+    .capacity { color: var(--muted); font-size: .84rem; }
+    .battery-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 24px 0 12px; }
+    .battery {
+      position: relative;
+      width: min(100%, 420px);
+      height: 164px;
+      padding: 8px;
+      border: 3px solid #7a8980;
+      border-radius: 23px;
+    }
+    .battery::after {
+      position: absolute;
+      top: 50%;
+      right: -12px;
+      width: 8px;
+      height: 44px;
+      border-radius: 0 5px 5px 0;
+      background: #7a8980;
+      content: "";
+      transform: translateY(-50%);
+    }
+    .battery-fill {
+      display: grid;
+      width: 0%;
+      height: 100%;
+      place-items: center;
+      border-radius: 12px;
+      background: linear-gradient(105deg, #58bd78, #a5edb4);
+      color: #102017;
+      transition: width .5s ease, background .3s ease;
+    }
+    .battery-fill.low { background: linear-gradient(105deg, #db8264, #f0ad79); }
+    .percent { font-size: clamp(2.7rem, 13vw, 4.1rem); font-weight: 780; letter-spacing: -.07em; font-variant-numeric: tabular-nums; }
+    .mode-label { min-height: 24px; color: var(--muted); text-align: center; font-size: .9rem; }
+    .mode-label strong { color: var(--green); }
+    .time-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 20px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #131a16;
+    }
+    .time-card span { display: block; }
+    .time-title { margin-bottom: 4px; color: var(--muted); font-size: .82rem; }
+    .time-value { font-size: 1.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .time-icon { font-size: 1.35rem; }
+    .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 20px; }
+    .mode-button, .secondary-button {
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #1c2520;
+      color: #e6ede8;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease;
+    }
+    .mode-button:hover, .secondary-button:hover { border-color: #65776a; background: #25322a; }
+    .mode-button[aria-pressed="true"] { border-color: #589269; background: #24392b; color: var(--green); }
+    .calibrate { display: flex; gap: 10px; margin-top: 14px; }
+    input[type="number"] {
+      width: 100%;
+      min-width: 0;
+      padding: 0 13px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      outline: none;
+      background: #121916;
+      color: #f1f5f2;
+    }
+    input[type="number"]:focus { border-color: #77bd89; }
+    .secondary-button { flex: 0 0 auto; padding: 0 16px; }
+    .settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+    .field label { display: block; margin-bottom: 7px; color: var(--muted); font-size: .8rem; }
+    .field input { height: 43px; }
+    .field-help { margin: 5px 0 0; color: #818e85; font-size: .72rem; line-height: 1.4; }
+    .notice { margin: 16px 0 0; color: #aeb9b1; font-size: .78rem; line-height: 1.5; }
+    .notice strong { color: #d7e0d9; }
+    @media (max-width: 440px) {
+      body { padding: 26px 14px; }
+      .card { padding: 18px; }
+      .battery { height: 140px; }
+      .settings { grid-template-columns: 1fr; gap: 12px; }
+      .controls { gap: 6px; }
+      .mode-button { padding: 0 4px; font-size: .84rem; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="card" aria-labelledby="battery-heading">
+      <div class="section-heading">
+        <h2 id="battery-heading">Рівень батареї</h2>
+        <span class="capacity">Ємність: <span id="capacity-label">192</span> Вт·год</span>
+      </div>
+      <div class="battery-wrap">
+        <div class="battery" role="meter" aria-label="Розрахунковий заряд батареї" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+          <div class="battery-fill" id="battery-fill"><span class="percent" id="percent">100%</span></div>
+        </div>
+      </div>
+      <div class="mode-label" id="mode-label" aria-live="polite"></div>
+      <div class="time-card">
+        <div>
+          <span class="time-title" id="time-title">До повного заряду</span>
+          <span class="time-value" id="time-value">—</span>
+        </div>
+        <span class="time-icon" id="time-icon" aria-hidden="true">⚡</span>
+      </div>
+      <div class="controls" role="group" aria-label="Режим повербанка">
+        <button class="mode-button" type="button" data-mode="discharging" aria-pressed="false">Живить пристрої</button>
+        <button class="mode-button" type="button" data-mode="charging" aria-pressed="false">Заряджається</button>
+        <button class="mode-button" type="button" data-mode="idle" aria-pressed="true">Не працює</button>
+      </div>
+      <div class="calibrate">
+        <input id="manual-percent" type="number" min="0" max="100" step="1" inputmode="decimal" placeholder="Фактичний заряд, %" aria-label="Фактичний заряд повербанка у відсотках">
+        <button class="secondary-button" id="set-percent" type="button">Синхронізувати</button>
+      </div>
+      <p class="notice">Введіть відсоток із дисплея повербанка, щоб скоригувати розрахунок. Без вимірювання від самого повербанка застосунок показує <strong>оцінку</strong>, а не апаратне вимірювання.</p>
+    </section>
+
+    <section class="card" aria-labelledby="settings-heading">
+      <div class="section-heading">
+        <h2 id="settings-heading">Параметри розрахунку</h2>
+        <span class="capacity">Зберігаються автоматично</span>
+      </div>
+      <div class="settings">
+        <div class="field">
+          <label for="capacity">Ємність батареї (Вт·год)</label>
+          <input id="capacity" type="number" min="1" max="10000" step="1">
+          <p class="field-help">Номінальна ємність вашої повербанки.</p>
+        </div>
+        <div class="field">
+          <label for="charge-hours">Час заряджання 0–100% (год)</label>
+          <input id="charge-hours" type="number" min="0.1" max="100" step="0.1">
+          <p class="field-help">Орієнтир: 2,5 год при зарядці до 97 Вт.</p>
+        </div>
+        <div class="field">
+          <label for="load-rate">Споживання на годину (%)</label>
+          <input id="load-rate" type="number" min="0" max="100" step="0.1">
+          <p class="field-help">Орієнтир за вашим спостереженням: 4%/год.</p>
+        </div>
+        <div class="field">
+          <label for="charge-watts">Потужність зарядки (Вт)</label>
+          <input id="charge-watts" type="number" min="1" max="10000" step="1">
+          <p class="field-help">Інформаційне значення для вашого зарядного пристрою.</p>
+        </div>
+      </div>
+      <p class="notice">Під час заряджання з навантаженням прогноз віднімає витрати пристроїв від темпу зарядки. За вашими оцінками: близько 40% заряду/год заряджання мінус 4%/год споживання = близько 36%/год. Повербанк може обмежувати наскрізне живлення; фактичний результат залежить від її електроніки.</p>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const defaults = {
+        percent: 100,
+        mode: "idle",
+        updatedAt: Date.now(),
+        capacity: 192,
+        chargeHours: 2.5,
+        loadRate: 4,
+        chargeWatts: 97
+      };
+      const storageKey = "power-bank-monitor-v1";
+      const readState = () => {
+        try {
+          const stored = JSON.parse(localStorage.getItem(storageKey) || "{}");
+          return { ...defaults, ...stored };
+        } catch (error) {
+          console.error("Не вдалося завантажити збережені параметри:", error);
+          return { ...defaults };
+        }
+      };
+      let state = readState();
+      const $ = (id) => document.getElementById(id);
+      const percentInput = $("manual-percent");
+      const inputs = {
+        capacity: $("capacity"),
+        chargeHours: $("charge-hours"),
+        loadRate: $("load-rate"),
+        chargeWatts: $("charge-watts")
+      };
+
+      const save = () => {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(state));
+        } catch (error) {
+          console.error("Не вдалося зберегти параметри:", error);
+        }
+      };
+      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+      const getPercent = (now) => {
+        const elapsedHours = Math.max(0, now - state.updatedAt) / 3600000;
+        const chargeRate = 100 / state.chargeHours;
+        const netRate = state.mode === "charging"
+          ? chargeRate - state.loadRate
+          : state.mode === "discharging" ? -state.loadRate : 0;
+        return clamp(state.percent + netRate * elapsedHours, 0, 100);
+      };
+      const formatDuration = (hours) => {
+        if (!Number.isFinite(hours) || hours < 0) return "—";
+        const totalMinutes = Math.ceil(hours * 60);
+        const wholeHours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        if (wholeHours === 0) return `${minutes} хв`;
+        if (minutes === 0) return `${wholeHours} год`;
+        return `${wholeHours} год ${minutes} хв`;
+      };
+      const render = () => {
+        const now = Date.now();
+        const percent = getPercent(now);
+        const rounded = Math.round(percent);
+        const fill = $("battery-fill");
+        const meter = document.querySelector('[role="meter"]');
+        fill.style.width = `${percent}%`;
+        fill.classList.toggle("low", percent <= 20);
+        $("percent").textContent = `${rounded}%`;
+        $("capacity-label").textContent = state.capacity;
+        meter.setAttribute("aria-valuenow", String(rounded));
+        $("mode-label").innerHTML = state.mode === "charging"
+          ? "⚡ <strong>Заряджається</strong>"
+          : state.mode === "discharging" ? "↘ <strong>Живить пристрої</strong>" : "На паузі";
+        $("time-icon").textContent = state.mode === "discharging" ? "🔌" : "⚡";
+        if (state.mode === "charging") {
+          const netRate = 100 / state.chargeHours - state.loadRate;
+          $("time-title").textContent = netRate > 0 ? "До повного заряду" : "Заряд не зростає";
+          $("time-value").textContent = netRate > 0 ? formatDuration((100 - percent) / netRate) : "Перевірте зарядку";
+        } else if (state.mode === "discharging") {
+          $("time-title").textContent = "Залишок роботи роутера й термінала";
+          $("time-value").textContent = state.loadRate > 0 ? formatDuration(percent / state.loadRate) : "Вкажіть споживання";
+        } else {
+          $("time-title").textContent = "Орієнтовний заряд";
+          $("time-value").textContent = `${rounded}%`;
+        }
+        document.querySelectorAll(".mode-button").forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.mode === state.mode));
+        });
+      };
+
+      Object.entries(inputs).forEach(([key, input]) => {
+        input.value = state[key];
+        input.addEventListener("change", () => {
+          const value = Number(input.value);
+          const max = key === "loadRate" ? 100 : 10000;
+          const min = key === "chargeHours" ? 0.1 : 1;
+          if (!Number.isFinite(value) || value < min || value > max) {
+            input.value = state[key];
+            return;
+          }
+          state.percent = getPercent(Date.now());
+          state.updatedAt = Date.now();
+          state[key] = value;
+          save();
+          render();
+        });
+      });
+
+      document.querySelectorAll(".mode-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.percent = getPercent(Date.now());
+          state.mode = button.dataset.mode;
+          state.updatedAt = Date.now();
+          save();
+          render();
+        });
+      });
+
+      $("set-percent").addEventListener("click", () => {
+        const value = Number(percentInput.value);
+        if (percentInput.value.trim() === "" || !Number.isFinite(value) || value < 0 || value > 100) {
+          percentInput.setCustomValidity("Введіть відсоток від 0 до 100.");
+          percentInput.reportValidity();
+          return;
+        }
+        percentInput.setCustomValidity("");
+        state.percent = value;
+        state.updatedAt = Date.now();
+        percentInput.value = "";
+        save();
+        render();
+      });
+      percentInput.addEventListener("input", () => percentInput.setCustomValidity(""));
+
+      render();
+      window.setInterval(() => {
+        state.percent = getPercent(Date.now());
+        state.updatedAt = Date.now();
+        save();
+        render();
+      }, 15000);
+      window.addEventListener("storage", (event) => {
+        if (event.key === storageKey) {
+          state = readState();
+          render();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
