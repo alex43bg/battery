@@ -69,6 +69,7 @@
       transition: width .5s ease, background .3s ease;
     }
     .battery-fill.low { background: linear-gradient(105deg, #db8264, #f0ad79); }
+    .battery-fill.very-low { background: linear-gradient(105deg, #783c35, #9c5144); }
     .battery-fill.white-percent { color: #fff; }
     .percent { font-size: clamp(2.7rem, 13vw, 4.1rem); font-weight: 780; letter-spacing: -.07em; font-variant-numeric: tabular-nums; }
     .mode-label { min-height: 24px; color: var(--muted); text-align: center; font-size: .9rem; }
@@ -320,6 +321,7 @@
         const meter = document.querySelector('[role="meter"]');
         fill.style.width = `${percent}%`;
         fill.classList.toggle("low", percent <= 35);
+        fill.classList.toggle("very-low", percent <= 19);
         fill.classList.toggle("white-percent", percent <= 35);
         $("percent").textContent = `${rounded}%`;
         $("capacity-label").textContent = state.capacity;
