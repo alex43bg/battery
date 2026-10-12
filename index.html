@@ -102,7 +102,7 @@
     .mode-button { overflow-wrap: anywhere; }
     .mode-button:hover, .secondary-button:hover { border-color: #65776a; background: #25322a; }
     .mode-button[aria-pressed="true"] { border-color: #589269; background: #24392b; color: var(--green); }
-    .calibrate { display: flex; align-items: flex-end; gap: 10px; margin-top: 14px; }
+    .calibrate { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: flex-end; gap: 10px; margin-top: 14px; }
     .settings-trigger {
       display: flex;
       width: 100%;
@@ -147,8 +147,9 @@
       color: #f1f5f2;
     }
     input[type="number"]:focus, .sync-time-field input:focus { border-color: #77bd89; }
-    .secondary-button { flex: 0 0 auto; padding: 0 16px; }
-    .sync-time-field { flex: 1; min-width: 0; }
+    .secondary-button { padding: 0 16px; }
+    .sync-time-field { min-width: 0; }
+    .calibrate .secondary-button { width: 100%; min-width: 0; padding: 0 8px; white-space: normal; overflow-wrap: anywhere; }
     .settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
     .field label { display: block; margin-bottom: 7px; color: var(--muted); font-size: .8rem; }
     .field input { height: 43px; }
@@ -162,9 +163,6 @@
       .settings { grid-template-columns: 1fr; gap: 12px; }
       .controls { gap: 6px; }
       .mode-button { padding: 0 4px; font-size: .84rem; }
-      .calibrate { flex-direction: row; align-items: flex-end; }
-      .sync-time-field { width: 100%; }
-      .calibrate .secondary-button { max-width: 50%; padding: 0 8px; white-space: normal; overflow-wrap: anywhere; }
       .settings-dialog { padding: 18px; }
     }
   </style>
@@ -196,17 +194,17 @@
       </div>
       <div class="calibrate">
         <div class="field sync-time-field">
-          <label for="manual-percent">Поточний заряд за дисплеєм (%)</label>
-          <input id="manual-percent" type="number" min="0" max="100" step="1" inputmode="decimal">
-        </div>
-        <button class="secondary-button" id="set-percent" type="button">Синхронізувати %</button>
-      </div>
-      <div class="calibrate sync-time-calibrate">
-        <div class="field sync-time-field">
           <label for="full-charge-time">Дата й час, коли заряд був 100%</label>
           <input id="full-charge-time" type="datetime-local">
         </div>
         <button class="secondary-button" id="sync-time" type="button">Синхронізувати час</button>
+      </div>
+      <div class="calibrate">
+        <div class="field sync-time-field">
+          <label for="manual-percent">Поточний заряд за дисплеєм (%)</label>
+          <input id="manual-percent" type="number" min="0" max="100" step="1" inputmode="decimal">
+        </div>
+        <button class="secondary-button" id="set-percent" type="button">Синхронізувати %</button>
       </div>
     </section>
 
