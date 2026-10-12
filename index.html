@@ -19,15 +19,25 @@
       --line: #303b35;
       --green: #9be5ac;
       min-height: 100%;
-      background: radial-gradient(ellipse at 50% -25%, #263d30 0, #101614 58%);
+      background: #101614;
     }
     * { box-sizing: border-box; }
     body {
       min-height: 100vh;
       min-height: 100dvh;
+      position: relative;
+      isolation: isolate;
       margin: 0;
       padding: calc(36px + env(safe-area-inset-top)) 18px calc(36px + env(safe-area-inset-bottom));
       background: transparent;
+    }
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: radial-gradient(ellipse at 50% -25%, #263d30 0, #101614 58%);
+      content: "";
+      pointer-events: none;
     }
     button, input { font: inherit; }
     .app { display: grid; width: min(100%, 620px); grid-template-columns: minmax(0, 1fr); margin: 0 auto; gap: 16px; }
@@ -74,7 +84,7 @@
       transition: width .5s ease, background .3s ease;
     }
     .battery-fill.low { background: linear-gradient(105deg, #db8264, #f0ad79); }
-    .battery-fill.very-low { background: linear-gradient(105deg, #783c35, #9c5144); }
+    .battery-fill.very-low { background: linear-gradient(105deg, #df4d3c, #a55c4f); }
     .battery-fill.white-percent { color: #fff; }
     .percent { font-size: clamp(2.7rem, 13vw, 4.1rem); font-weight: 780; letter-spacing: -.07em; font-variant-numeric: tabular-nums; }
     .mode-label { min-height: 24px; color: var(--muted); text-align: center; font-size: .9rem; }
