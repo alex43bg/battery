@@ -104,6 +104,7 @@
     .mode-button:hover, .secondary-button:hover { border-color: #65776a; background: #25322a; }
     .mode-button[aria-pressed="true"] { border-color: #589269; background: #24392b; color: var(--green); }
     .calibrate { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: flex-end; gap: 10px; margin-top: 14px; }
+    .full-charge-calibrate { margin-top: 34px; }
     .settings-trigger {
       display: flex;
       width: 100%;
@@ -202,12 +203,12 @@
         <button class="mode-button" type="button" data-mode="charging" aria-pressed="false">Заряджається</button>
         <button class="mode-button" type="button" data-mode="idle" aria-pressed="true">Не працює</button>
       </div>
-      <div class="calibrate">
+      <div class="calibrate full-charge-calibrate">
         <label for="full-charge-time">Дата й час, коли заряд був 100%</label>
         <div class="field sync-time-field">
           <input id="full-charge-time" type="datetime-local">
         </div>
-        <button class="secondary-button" id="sync-time" type="button">Синхронізувати <span aria-hidden="true">🕒</span></button>
+        <button class="secondary-button" id="sync-time" type="button">Синхронізувати <span aria-hidden="true"></span></button>
       </div>
       <div class="calibrate">
         <label for="manual-percent">Поточний заряд за дисплеєм (%)</label>
