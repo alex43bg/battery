@@ -186,6 +186,9 @@
       body {
         padding: calc(26px + env(safe-area-inset-top)) 14px calc(26px + env(safe-area-inset-bottom));
       }
+      body::before {
+        background: #101614;
+      }
       .card { padding: 18px; }
       .battery { height: 140px; }
       .settings { grid-template-columns: 1fr; gap: 12px; }
