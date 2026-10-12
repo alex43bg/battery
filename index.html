@@ -68,6 +68,7 @@
       transition: width .5s ease, background .3s ease;
     }
     .battery-fill.low { background: linear-gradient(105deg, #db8264, #f0ad79); }
+    .battery-fill.white-percent { color: #fff; }
     .percent { font-size: clamp(2.7rem, 13vw, 4.1rem); font-weight: 780; letter-spacing: -.07em; font-variant-numeric: tabular-nums; }
     .mode-label { min-height: 24px; color: var(--muted); text-align: center; font-size: .9rem; }
     .mode-label strong { color: var(--green); }
@@ -98,8 +99,41 @@
     }
     .mode-button:hover, .secondary-button:hover { border-color: #65776a; background: #25322a; }
     .mode-button[aria-pressed="true"] { border-color: #589269; background: #24392b; color: var(--green); }
-    .calibrate { display: flex; gap: 10px; margin-top: 14px; }
-    input[type="number"] {
+    .calibrate { display: flex; align-items: flex-end; gap: 10px; margin-top: 14px; }
+    .settings-trigger {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 22px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgb(25 33 29 / 94%);
+      color: #f1f5f2;
+      text-align: left;
+      cursor: pointer;
+      box-shadow: 0 18px 50px rgb(0 0 0 / 16%);
+      transition: background .15s ease, border-color .15s ease;
+    }
+    .settings-trigger:hover { border-color: #65776a; background: #25322a; }
+    .settings-trigger-title { font-weight: 700; }
+    .settings-dialog {
+      width: min(calc(100% - 32px), 620px);
+      max-height: min(90vh, 800px);
+      margin: auto;
+      padding: 22px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: #19211d;
+      color: #f1f5f2;
+      box-shadow: 0 18px 50px rgb(0 0 0 / 35%);
+    }
+    .settings-dialog::backdrop { background: rgb(0 0 0 / 65%); }
+    .dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .dialog-close { min-height: 40px; }
+    input[type="number"], .sync-time-field input {
       width: 100%;
       min-width: 0;
       padding: 0 13px;
@@ -109,8 +143,9 @@
       background: #121916;
       color: #f1f5f2;
     }
-    input[type="number"]:focus { border-color: #77bd89; }
+    input[type="number"]:focus, .sync-time-field input:focus { border-color: #77bd89; }
     .secondary-button { flex: 0 0 auto; padding: 0 16px; }
+    .sync-time-field { flex: 1; min-width: 0; }
     .settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
     .field label { display: block; margin-bottom: 7px; color: var(--muted); font-size: .8rem; }
     .field input { height: 43px; }
@@ -124,6 +159,7 @@
       .settings { grid-template-columns: 1fr; gap: 12px; }
       .controls { gap: 6px; }
       .mode-button { padding: 0 4px; font-size: .84rem; }
+      .settings-dialog { padding: 18px; }
     }
   </style>
 </head>
@@ -153,42 +189,57 @@
         <button class="mode-button" type="button" data-mode="idle" aria-pressed="true">Не працює</button>
       </div>
       <div class="calibrate">
-        <input id="manual-percent" type="number" min="0" max="100" step="1" inputmode="decimal" placeholder="Фактичний заряд, %" aria-label="Фактичний заряд повербанка у відсотках">
-        <button class="secondary-button" id="set-percent" type="button">Синхронізувати</button>
+        <div class="field sync-time-field">
+          <label for="manual-percent">Поточний заряд за дисплеєм (%)</label>
+          <input id="manual-percent" type="number" min="0" max="100" step="1" inputmode="decimal">
+        </div>
+        <button class="secondary-button" id="set-percent" type="button">Синхронізувати %</button>
       </div>
-      <p class="notice">Введіть відсоток із дисплея повербанка, щоб скоригувати розрахунок. Без вимірювання від самого повербанка застосунок показує <strong>оцінку</strong>, а не апаратне вимірювання.</p>
+      <div class="calibrate">
+        <div class="field sync-time-field">
+          <label for="full-charge-time">Дата й час, коли заряд був 100%</label>
+          <input id="full-charge-time" type="datetime-local">
+        </div>
+        <button class="secondary-button" id="sync-time" type="button">Синхронізувати час</button>
+      </div>
     </section>
 
-    <section class="card" aria-labelledby="settings-heading">
-      <div class="section-heading">
-        <h2 id="settings-heading">Параметри розрахунку</h2>
-        <span class="capacity">Зберігаються автоматично</span>
-      </div>
-      <div class="settings">
-        <div class="field">
-          <label for="capacity">Ємність батареї (Вт·год)</label>
-          <input id="capacity" type="number" min="1" max="10000" step="1">
-          <p class="field-help">Номінальна ємність вашої повербанки.</p>
-        </div>
-        <div class="field">
-          <label for="charge-hours">Час заряджання 0–100% (год)</label>
-          <input id="charge-hours" type="number" min="0.1" max="100" step="0.1">
-          <p class="field-help">Орієнтир: 2,5 год при зарядці до 97 Вт.</p>
-        </div>
-        <div class="field">
-          <label for="load-rate">Споживання на годину (%)</label>
-          <input id="load-rate" type="number" min="0" max="100" step="0.1">
-          <p class="field-help">Орієнтир за вашим спостереженням: 4%/год.</p>
-        </div>
-        <div class="field">
-          <label for="charge-watts">Потужність зарядки (Вт)</label>
-          <input id="charge-watts" type="number" min="1" max="10000" step="1">
-          <p class="field-help">Інформаційне значення для вашого зарядного пристрою.</p>
-        </div>
-      </div>
-      <p class="notice">Під час заряджання з навантаженням прогноз віднімає витрати пристроїв від темпу зарядки. За вашими оцінками: близько 40% заряду/год заряджання мінус 4%/год споживання = близько 36%/год. Повербанк може обмежувати наскрізне живлення; фактичний результат залежить від її електроніки.</p>
-    </section>
+    <button class="settings-trigger" id="open-settings" type="button" aria-haspopup="dialog" aria-controls="settings-dialog">
+      <span class="settings-trigger-title">Параметри розрахунку</span>
+      <span class="capacity">Налаштувати</span>
+    </button>
   </main>
+
+  <dialog class="settings-dialog" id="settings-dialog" aria-labelledby="settings-heading">
+    <div class="dialog-heading">
+      <h2 id="settings-heading">Параметри розрахунку</h2>
+      <button class="secondary-button dialog-close" id="close-settings" type="button">Готово</button>
+    </div>
+    <span class="capacity">Зберігаються автоматично</span>
+    <div class="settings">
+      <div class="field">
+        <label for="capacity">Ємність батареї (Вт·год)</label>
+        <input id="capacity" type="number" min="1" max="10000" step="1">
+        <p class="field-help">Номінальна ємність вашої повербанки.</p>
+      </div>
+      <div class="field">
+        <label for="charge-hours">Час заряджання 0–100% (год)</label>
+        <input id="charge-hours" type="number" min="0.1" max="100" step="0.1">
+        <p class="field-help">Орієнтир: 2,5 год при зарядці до 97 Вт.</p>
+      </div>
+      <div class="field">
+        <label for="load-rate">Споживання на годину (%)</label>
+        <input id="load-rate" type="number" min="0" max="100" step="0.1">
+        <p class="field-help">Орієнтир за вашим спостереженням: 4%/год.</p>
+      </div>
+      <div class="field">
+        <label for="charge-watts">Потужність зарядки (Вт)</label>
+        <input id="charge-watts" type="number" min="1" max="10000" step="1">
+        <p class="field-help">Інформаційне значення для вашого зарядного пристрою.</p>
+      </div>
+    </div>
+    <p class="notice">Під час заряджання з навантаженням прогноз віднімає витрати пристроїв від темпу зарядки. За вашими оцінками: близько 40% заряду/год заряджання мінус 4%/год споживання = близько 36%/год. Повербанк може обмежувати наскрізне живлення; фактичний результат залежить від її електроніки.</p>
+  </dialog>
 
   <script>
     (() => {
@@ -213,7 +264,9 @@
       };
       let state = readState();
       const $ = (id) => document.getElementById(id);
+      const fullChargeTimeInput = $("full-charge-time");
       const percentInput = $("manual-percent");
+      const settingsDialog = $("settings-dialog");
       const inputs = {
         capacity: $("capacity"),
         chargeHours: $("charge-hours"),
@@ -253,7 +306,8 @@
         const fill = $("battery-fill");
         const meter = document.querySelector('[role="meter"]');
         fill.style.width = `${percent}%`;
-        fill.classList.toggle("low", percent <= 20);
+        fill.classList.toggle("low", percent <= 35);
+        fill.classList.toggle("white-percent", percent <= 35);
         $("percent").textContent = `${rounded}%`;
         $("capacity-label").textContent = state.capacity;
         meter.setAttribute("aria-valuenow", String(rounded));
@@ -304,6 +358,37 @@
           render();
         });
       });
+
+      $("open-settings").addEventListener("click", () => settingsDialog.showModal());
+      $("close-settings").addEventListener("click", () => settingsDialog.close());
+      settingsDialog.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          settingsDialog.close();
+        }
+      });
+      settingsDialog.addEventListener("click", (event) => {
+        if (event.target === settingsDialog) settingsDialog.close();
+      });
+
+      $("sync-time").addEventListener("click", () => {
+        const fullChargeTime = new Date(fullChargeTimeInput.value).getTime();
+        const now = Date.now();
+        if (!fullChargeTimeInput.value || !Number.isFinite(fullChargeTime) || fullChargeTime > now) {
+          fullChargeTimeInput.setCustomValidity("Вкажіть коректну дату й час у минулому.");
+          fullChargeTimeInput.reportValidity();
+          return;
+        }
+        fullChargeTimeInput.setCustomValidity("");
+        const elapsedHours = (now - fullChargeTime) / 3600000;
+        state.percent = clamp(100 - state.loadRate * elapsedHours, 0, 100);
+        state.mode = "discharging";
+        state.updatedAt = now;
+        fullChargeTimeInput.value = "";
+        save();
+        render();
+      });
+      fullChargeTimeInput.addEventListener("input", () => fullChargeTimeInput.setCustomValidity(""));
 
       $("set-percent").addEventListener("click", () => {
         const value = Number(percentInput.value);
