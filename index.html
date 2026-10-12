@@ -139,6 +139,7 @@
     input[type="number"], .sync-time-field input {
       width: 100%;
       min-width: 0;
+      max-width: 100%;
       padding: 0 13px;
       border: 1px solid var(--line);
       border-radius: 11px;
@@ -146,13 +147,16 @@
       background: #121916;
       color: #f1f5f2;
     }
+    .sync-time-field input[type="datetime-local"] { display: block; padding: 0 6px; }
     input[type="number"]:focus, .sync-time-field input:focus { border-color: #77bd89; }
     .secondary-button { padding: 0 16px; }
     .sync-time-field { min-width: 0; }
     .calibrate .secondary-button { width: 100%; min-width: 0; padding: 0 8px; white-space: normal; overflow-wrap: anywhere; }
+    .calibrate > label { grid-column: 1 / -1; display: block; color: var(--muted); font-size: .8rem; }
     .settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
     .field label { display: block; margin-bottom: 7px; color: var(--muted); font-size: .8rem; }
     .field input { height: 43px; }
+    .calibrate .field input { height: 46px; }
     .field-help { margin: 5px 0 0; color: #818e85; font-size: .72rem; line-height: 1.4; }
     .notice { margin: 16px 0 0; color: #aeb9b1; font-size: .78rem; line-height: 1.5; }
     .notice strong { color: #d7e0d9; }
@@ -193,15 +197,15 @@
         <button class="mode-button" type="button" data-mode="idle" aria-pressed="true">Не працює</button>
       </div>
       <div class="calibrate">
+        <label for="full-charge-time">Дата й час, коли заряд був 100%</label>
         <div class="field sync-time-field">
-          <label for="full-charge-time">Дата й час, коли заряд був 100%</label>
           <input id="full-charge-time" type="datetime-local">
         </div>
         <button class="secondary-button" id="sync-time" type="button">Синхронізувати час</button>
       </div>
       <div class="calibrate">
+        <label for="manual-percent">Поточний заряд за дисплеєм (%)</label>
         <div class="field sync-time-field">
-          <label for="manual-percent">Поточний заряд за дисплеєм (%)</label>
           <input id="manual-percent" type="number" min="0" max="100" step="1" inputmode="decimal">
         </div>
         <button class="secondary-button" id="set-percent" type="button">Синхронізувати %</button>
