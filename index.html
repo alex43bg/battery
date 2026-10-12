@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#101614">
   <title>Енергія — монітор батареї</title>
   <style>
@@ -16,13 +16,16 @@
       --muted: #a2ada6;
       --line: #303b35;
       --green: #9be5ac;
+      min-height: 100%;
+      background: radial-gradient(ellipse at 50% -25%, #263d30 0, #101614 58%);
     }
     * { box-sizing: border-box; }
     body {
       min-height: 100vh;
+      min-height: 100dvh;
       margin: 0;
       padding: 36px 18px;
-      background: radial-gradient(ellipse at 50% -25%, #263d30 0, #101614 58%);
+      background: transparent;
     }
     button, input { font: inherit; }
     .app { display: grid; width: min(100%, 620px); grid-template-columns: minmax(0, 1fr); margin: 0 auto; gap: 16px; }
@@ -168,7 +171,9 @@
     .notice { margin: 16px 0 0; color: #aeb9b1; font-size: .78rem; line-height: 1.5; }
     .notice strong { color: #d7e0d9; }
     @media (max-width: 440px) {
-      body { padding: 26px 14px; }
+      body {
+        padding: calc(26px + env(safe-area-inset-top)) 14px calc(26px + env(safe-area-inset-bottom));
+      }
       .card { padding: 18px; }
       .battery { height: 140px; }
       .settings { grid-template-columns: 1fr; gap: 12px; }
