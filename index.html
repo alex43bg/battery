@@ -162,9 +162,9 @@
       .settings { grid-template-columns: 1fr; gap: 12px; }
       .controls { gap: 6px; }
       .mode-button { padding: 0 4px; font-size: .84rem; }
-      .calibrate { flex-direction: column; align-items: stretch; }
+      .calibrate { flex-direction: row; align-items: flex-end; }
       .sync-time-field { width: 100%; }
-      .calibrate .secondary-button { width: 100%; }
+      .calibrate .secondary-button { max-width: 50%; padding: 0 8px; white-space: normal; overflow-wrap: anywhere; }
       .settings-dialog { padding: 18px; }
     }
   </style>
@@ -201,7 +201,7 @@
         </div>
         <button class="secondary-button" id="set-percent" type="button">Синхронізувати %</button>
       </div>
-      <div class="calibrate">
+      <div class="calibrate sync-time-calibrate">
         <div class="field sync-time-field">
           <label for="full-charge-time">Дата й час, коли заряд був 100%</label>
           <input id="full-charge-time" type="datetime-local">
