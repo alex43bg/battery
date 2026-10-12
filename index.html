@@ -25,7 +25,8 @@
       background: radial-gradient(ellipse at 50% -25%, #263d30 0, #101614 58%);
     }
     button, input { font: inherit; }
-    .app { display: grid; width: min(100%, 620px); margin: 0 auto; gap: 16px; }
+    .app { display: grid; width: min(100%, 620px); grid-template-columns: minmax(0, 1fr); margin: 0 auto; gap: 16px; }
+    .app > * { min-width: 0; }
     .card {
       margin-top: 0;
       padding: 22px;
@@ -87,9 +88,10 @@
     .time-title { margin-bottom: 4px; color: var(--muted); font-size: .82rem; }
     .time-value { font-size: 1.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
     .time-icon { font-size: 1.35rem; }
-    .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 20px; }
+    .controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 20px; }
     .mode-button, .secondary-button {
       min-height: 46px;
+      min-width: 0;
       border: 1px solid var(--line);
       border-radius: 11px;
       background: #1c2520;
@@ -97,6 +99,7 @@
       cursor: pointer;
       transition: background .15s ease, border-color .15s ease;
     }
+    .mode-button { overflow-wrap: anywhere; }
     .mode-button:hover, .secondary-button:hover { border-color: #65776a; background: #25322a; }
     .mode-button[aria-pressed="true"] { border-color: #589269; background: #24392b; color: var(--green); }
     .calibrate { display: flex; align-items: flex-end; gap: 10px; margin-top: 14px; }
