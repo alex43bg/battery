@@ -147,7 +147,12 @@
       background: #121916;
       color: #f1f5f2;
     }
-    .sync-time-field input[type="datetime-local"] { display: block; padding: 0 6px; }
+    .sync-time-field input[type="datetime-local"] {
+      display: block;
+      padding: 0 6px;
+      -webkit-appearance: none;
+      appearance: none;
+    }
     input[type="number"]:focus, .sync-time-field input:focus { border-color: #77bd89; }
     .secondary-button { padding: 0 16px; }
     .sync-time-field { min-width: 0; }
