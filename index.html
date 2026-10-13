@@ -249,6 +249,10 @@
         </div>
         <span class="time-icon" id="time-icon" aria-hidden="true">⚡</span>
       </div>
+      <div class="stats-summary" aria-label="Прогноз часу досягнення рівня заряду" aria-live="polite">
+        <p><span>100%:</span><time id="full-charge-estimate">—</time></p>
+        <p><span>30%:</span><time id="low-charge-estimate">—</time></p>
+      </div>
       <div class="controls" role="group" aria-label="Режим повербанка">
         <button class="mode-button" type="button" data-mode="discharging" aria-pressed="false">Живить пристрої</button>
         <button class="mode-button" type="button" data-mode="charging" aria-pressed="false">Заряджається</button>
@@ -311,10 +315,6 @@
     <div class="dialog-heading">
       <h2 id="statistics-heading">Статистика батареї</h2>
       <button class="secondary-button dialog-close" id="close-statistics" type="button">Готово</button>
-    </div>
-    <div class="stats-summary" aria-live="polite">
-      <p><span>100%:</span><time id="full-charge-estimate">—</time></p>
-      <p><span>30%:</span><time id="low-charge-estimate">—</time></p>
     </div>
     <ol class="stats-list" id="statistics-list" aria-live="polite"></ol>
     <p class="stats-empty">Орієнтовний час розраховано за вказаним споживанням.</p>
@@ -389,11 +389,7 @@
         if (state.loadRate <= 0) return null;
         return now + ((currentPercent - percent) / state.loadRate) * 3600000;
       };
-      const renderStatistics = () => {
-        const list = $("statistics-list");
-        list.replaceChildren();
-        const now = Date.now();
-        const currentPercent = getPercent(now);
+      const renderEstimates = (currentPercent, now) => {
         const fullChargeTime = getEstimatedTime(100, currentPercent, now);
         const lowChargeTime = getEstimatedTime(30, currentPercent, now);
         $("full-charge-estimate").textContent = fullChargeTime === null
@@ -402,6 +398,13 @@
         $("low-charge-estimate").textContent = lowChargeTime === null
           ? "Невідомо"
           : `${lowChargeTime <= now ? "Вже досягнуто" : "Буде"} ${formatDateTime(lowChargeTime)}`;
+      };
+      const renderStatistics = () => {
+        const list = $("statistics-list");
+        list.replaceChildren();
+        const now = Date.now();
+        const currentPercent = getPercent(now);
+        renderEstimates(currentPercent, now);
         Array.from({ length: 10 }, (_, index) => 100 - index * 10).forEach((percent) => {
           const row = document.createElement("li");
           row.className = `stats-entry${percent === 30 ? " low-charge" : ""}`;
@@ -433,6 +436,7 @@
         const now = Date.now();
         const percent = getPercent(now);
         const rounded = Math.round(percent);
+        renderEstimates(percent, now);
         const fill = $("battery-fill");
         const meter = $("battery-meter");
         fill.style.width = `${percent}%`;
