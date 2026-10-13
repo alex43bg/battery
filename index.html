@@ -178,6 +178,7 @@
     .stats-entry.low-charge { border-color: #8b762e; color: #f4d35e; }
     .stats-summary { display: grid; gap: 10px; margin-top: 18px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: #131a16; }
     .stats-summary p { display: flex; justify-content: space-between; gap: 12px; margin: 0; font-size: .88rem; }
+    .stats-summary .low-charge { color: #f4d35e; }
     .stats-summary time { text-align: right; font-variant-numeric: tabular-nums; }
     .stats-empty { margin: 18px 0 0; color: var(--muted); font-size: .9rem; }
     input[type="number"], .sync-time-field input {
@@ -251,7 +252,7 @@
       </div>
       <div class="stats-summary" aria-label="Прогноз часу досягнення рівня заряду" aria-live="polite">
         <p><span>100%:</span><time id="full-charge-estimate">—</time></p>
-        <p><span>30%:</span><time id="low-charge-estimate">—</time></p>
+        <p class="low-charge"><span>30%:</span><time id="low-charge-estimate">—</time></p>
       </div>
       <div class="controls" role="group" aria-label="Режим повербанка">
         <button class="mode-button" type="button" data-mode="discharging" aria-pressed="false">Живить пристрої</button>
