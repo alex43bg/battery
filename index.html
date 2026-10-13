@@ -540,7 +540,6 @@
         updateProgress(now);
         state.percent = value;
         state.updatedAt = now;
-        appendHistoryEntry(value, now);
         percentInput.value = "";
         save();
         render();
